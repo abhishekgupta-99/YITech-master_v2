@@ -1,0 +1,42 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <!--    <style name="AppTheme" parent="Theme.MaterialComponents.Light">-->
+    <!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
+    <!--        <item name="android:windowActionBar">false</item>-->
+    <!--        <item name="android:windowNoTitle">true</item>-->
+    <!--        <item name="colorPrimary">@color/white</item>-->
+    <!--        <item name="colorPrimaryDark">@color/white</item>-->
+    <!--        <item name="colorAccent">@color/md_blue_200</item>-->
+    <!--        <item name="android:fontFamily">@font/montserrat</item>-->
+
+    <!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
+    <!--        <item name="material_dialog_background">#FFFFFF</item>-->
+    <!--        <item name="material_dialog_title_text_color">#000000</item>-->
+    <!--        <item name="material_dialog_message_text_color">#5F5F5F</item>-->
+    <!--        <item name="material_dialog_positive_button_color">@color/md_blue_200</item>-->
+    <!--        <item name="material_dialog_positive_button_text_color">#FFFFFF</item>-->
+    <!--        <item name="material_dialog_negative_button_text_color">@color/md_blue_200</item>-->
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="colorPrimary">@color/md_blue_200</item>
+        <item name="colorOnSurface">#C5C5C5</item>
+
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/md_blue_200</item>
+        <item name="android:fontFamily">@font/poppins</item>
+        <item name="colorControlActivated">@color/md_blue_200</item>
+        <item name="material_dialog_background">#FFFFFF</item>
+        <item name="material_dialog_title_text_color">#000000</item>
+        <item name="material_dialog_message_text_color">#5F5F5F</item>
+        <item name="material_dialog_positive_button_color">@color/md_blue_200</item>
+        <item name="material_dialog_positive_button_text_color">#FFFFFF</item>
+        <item name="material_dialog_negative_button_text_color">@color/md_blue_200</item>
+    </style>
+
+
+</resources>

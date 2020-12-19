@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">School Attendance Management App</string>
+    <string name="Slave_gs_url">https://script.google.com/macros/s/AKfycbwMm9it49GXvvzYbH5Pv59skrqJ9Zk8jkdav10j-nIJQuEnGSi9/exec</string>
+    <string name="Master_gs_url">https://script.google.com/macros/s/AKfycbz938aPu6B_i3RootSMc4JpFKgA09uMhEyUMsK6F9BT0ijJJAAT/exec</string>
+
+</resources>

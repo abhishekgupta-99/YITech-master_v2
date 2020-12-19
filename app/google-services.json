@@ -1,0 +1,100 @@
+{
+  "project_info": {
+    "project_number": "221965759589",
+    "project_id": "freelanceattendance",
+    "storage_bucket": "freelanceattendance.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:221965759589:android:28b41223e0d77d49c0428c",
+        "android_client_info": {
+          "package_name": "com.example.sql_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "221965759589-4pab9truegs9the2hr5sts0j9f815jbe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sql_project",
+            "certificate_hash": "32bfc374b36412d3029742093941089dadb6971d"
+          }
+        },
+        {
+          "client_id": "221965759589-b5cbh2vf75oobi1l08o926o0renauc4r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sql_project",
+            "certificate_hash": "3827f44443f014c944e394e1d024f4c5ab7f4961"
+          }
+        },
+        {
+          "client_id": "221965759589-e7if35t7mefs857mp40pctqo2bv0t5es.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sql_project",
+            "certificate_hash": "bbc6d0b5ce1ddb52759c4267b128c288d25f9ccd"
+          }
+        },
+        {
+          "client_id": "221965759589-rcqa88qc5cla3o1rc2cqgmrjeg4h4uje.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAK92cDik8feSYiK9yPjAHQBLycf0BPMFo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "221965759589-rcqa88qc5cla3o1rc2cqgmrjeg4h4uje.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:221965759589:android:04e4d805528a76d0c0428c",
+        "android_client_info": {
+          "package_name": "com.freelance.school_attendance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "221965759589-g3pcg7vs7apn11nt4lc4cr86rrulinur.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.freelance.school_attendance",
+            "certificate_hash": "bbc6d0b5ce1ddb52759c4267b128c288d25f9ccd"
+          }
+        },
+        {
+          "client_id": "221965759589-rcqa88qc5cla3o1rc2cqgmrjeg4h4uje.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAK92cDik8feSYiK9yPjAHQBLycf0BPMFo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "221965759589-rcqa88qc5cla3o1rc2cqgmrjeg4h4uje.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

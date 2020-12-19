@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    app:cardBackgroundColor="@color/white"
+    android:layout_height="wrap_content"
+    android:layout_margin="3dp"
+    android:padding="5dp"
+    app:cardElevation="5dp"
+    app:cardCornerRadius="5dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:layout_margin="3dp">
+
+        <!--<TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/roll_no"
+            android:textColor="#fff"
+            android:text="17"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:background="@drawable/circular_bg"/>-->
+
+        <TextView
+            android:id="@+id/lectures_attended"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/student"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@+id/roll_no"
+            android:text="Lectures"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/circular_progress"
+            app:layout_constraintStart_toEndOf="@+id/circular_progress"
+            app:layout_constraintTop_toBottomOf="@+id/roll_no"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <!--<TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/lectures_attended"
+            android:id="@+id/status"
+            android:layout_margin="4dp"
+            android:text="Status: " />-->
+
+
+        <TextView
+            android:id="@+id/student"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_toEndOf="@+id/roll_no"
+            android:text="Student Name"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="@+id/roll_no"
+            app:layout_constraintStart_toEndOf="@+id/roll_no"
+            app:layout_constraintTop_toTopOf="@+id/roll_no" />
+
+        <antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator
+            android:id="@+id/circular_progress"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:drawDot="false"
+            app:enableProgressAnimation="false"
+            app:fillBackground="false"
+            app:gradientType="no_gradient"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:progressColor="@color/md_green_200"
+            app:progressStrokeWidth="3dp"
+            app:textColor="@color/background900"
+            android:textAlignment="center"
+            app:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/roll_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Roll"
+            android:textSize="18sp"
+            app:layout_constraintStart_toEndOf="@+id/circular_progress"
+            app:layout_constraintTop_toTopOf="@+id/circular_progress" />
+
+        <!--        <com.google.android.material.card.MaterialCardView-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginEnd="16dp"-->
+        <!--            app:cardBackgroundColor="#F3F3F3"-->
+        <!--            app:cardCornerRadius="10dp"-->
+        <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintTop_toTopOf="parent">-->
+
+        <!--            <TextView-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:paddingLeft="10dp"-->
+        <!--                android:paddingTop="5dp"-->
+        <!--                android:paddingRight="10dp"-->
+        <!--                android:paddingBottom="5dp"-->
+        <!--                android:text="A" />-->
+
+        <!--        </com.google.android.material.card.MaterialCardView>-->
+
+<!--        <co.ceryle.radiorealbutton.RadioRealButtonGroup-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:rrbg_animateDrawables_enter="overshoot"-->
+<!--            app:rrbg_animateTexts_enter="overshoot"-->
+<!--            app:rrbg_dividerColor="@color/md_blue_200"-->
+<!--            app:rrbg_dividerSize="1dp"-->
+<!--            app:rrbg_radius="10dp"-->
+<!--            app:layout_constraintLeft_toRightOf="@+id/student"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:rrbg_selectorColor="@color/md_blue_200"-->
+<!--            app:rrbg_selectorSize="6dp"-->
+<!--            tools:ignore="MissingConstraints">-->
+
+<!--            <co.ceryle.radiorealbutton.RadioRealButton-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:rrb_drawable="@mipmap/ic_launcher"-->
+<!--                app:rrb_drawableHeight="36dp"-->
+<!--                app:rrb_drawablePadding="8dp"-->
+<!--                app:rrb_drawableWidth="36dp"-->
+<!--                app:rrb_ripple="true"-->
+<!--                app:rrb_rippleColor="@color/md_blue_200"-->
+<!--                app:rrb_text="A"-->
+<!--                app:rrb_textColor="@color/colorPrimary"/>-->
+
+<!--            <co.ceryle.radiorealbutton.RadioRealButton-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:rrb_drawable="@mipmap/ic_launcher"-->
+<!--                app:rrb_drawableGravity="right"-->
+<!--                app:rrb_drawableHeight="36dp"-->
+<!--                app:rrb_drawablePadding="8dp"-->
+<!--                app:rrb_drawableWidth="36dp"-->
+<!--                app:rrb_ripple="true"-->
+<!--                app:rrb_rippleColor="@color/black"-->
+<!--                app:rrb_text="Button 2"-->
+<!--                app:rrb_textColor="@color/black"/>-->
+<!--        </co.ceryle.radiorealbutton.RadioRealButtonGroup>-->
+
+        <RadioGroup
+            android:id="@+id/rg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/student"
+            tools:ignore="MissingConstraints">
+            <RadioButton
+                android:id="@+id/p"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+            <RadioButton
+                android:id="@+id/a"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+            <RadioButton
+                android:id="@+id/wp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                />
+        </RadioGroup>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
+
+

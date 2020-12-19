@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".FetchStudentsAttendanceFromSlaveGsheet">
+
+
+    <ImageView
+        android:id="@+id/imageView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        app:srcCompat="@drawable/ic_round_arrow_back_ios_24"
+        app:tint="@color/md_blue_200"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins"
+        android:text="Attendance"
+        android:textColor="@color/background900"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageView8" />
+
+    <TextView
+        android:id="@+id/tv_teacher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/poppins_light"
+        android:text="Teacher : Teacher Name"
+        android:textColor="@color/background900"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView8" />
+
+    <TextView
+        android:id="@+id/tv_class"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins_light"
+        android:text="Class : 7B"
+        android:textColor="@color/background900"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@+id/tv_teacher"
+        app:layout_constraintTop_toBottomOf="@+id/tv_teacher" />
+
+    <TextView
+        android:id="@+id/tv_sub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins_light"
+        android:text="Subject :  "
+        android:textColor="@color/background900"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@+id/tv_class"
+        app:layout_constraintTop_toBottomOf="@+id/tv_class" />
+
+
+    <Button
+        android:id="@+id/save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:onClick="confirm_material_dialogbox"
+        android:text="Save"
+        app:backgroundTint="@color/md_blue_200"
+        app:cornerRadius="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/save"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="16dp"
+        android:padding="4dp"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/save"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        app:layout_constraintTop_toBottomOf="@+id/tv_sub"
+        tools:layout_editor_absoluteX="188dp">
+
+        <TextView
+            android:id="@+id/statusmain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins"
+            android:text="Status"
+            android:textAlignment="center"
+            android:textColor="@color/background900"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins"
+            android:text="Roll No &amp; Name"
+            android:textAlignment="center"
+            android:textColor="@color/background900"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/markmain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins"
+            android:text="P   A    WP"
+            android:textAlignment="center"
+            android:textColor="@color/background900"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:id="@+id/fab"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentRight="true"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_margin="16dp"-->
+    <!--app:borderWidth="0dp"-->
+    <!--android:src="@drawable/add"-->
+    <!--app:backgroundTint="#0FC9C9"-->
+    <!--/>-->
+    <!--<androidx.cardview.widget.CardView
+
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+android:onClick="Update_Sheet"
+    android:layout_margin="10dp"
+     android:layout_alignParentBottom="true"
+android:layout_alignWithParentIfMissing="true"
+    app:cardCornerRadius="5dp"
+    android:id="@+id/update_sheet"
+    android:layout_centerInParent="true"
+    app:cardBackgroundColor="@color/colorAccent"
+   >
+
+    <TextView
+        android:layout_margin="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update GOOGLE SHEET"
+        android:textColor="#fff" />
+
+</androidx.cardview.widget.CardView>-->
+
+
+    <!--<ImageView
+       android:layout_width="40dp"
+       android:layout_alignParentBottom="true"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentRight="true"
+       android:id="@+id/student_CRUD"
+       android:layout_margin="10dp"
+       android:onClick="student_crud"
+       android:layout_height="40dp"
+       android:src="@drawable/ic_student"/>-->
+
+
+    <!--<Button
+        android:id="@+id/fab"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="50dp"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/circular_bg"
+        android:layout_alignParentEnd="true" />-->
+</androidx.constraintlayout.widget.ConstraintLayout>
