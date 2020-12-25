@@ -22,6 +22,7 @@ public class SelectTeacher extends AppCompatActivity {
     String selected_class, selected_teacher, selected_subject;
     ArrayList<String> teacherlist = new ArrayList<String>();
     ArrayList<String> subjectlist = new ArrayList<String>();
+    ArrayList<String> sessionlist = new ArrayList<String>();
     ArrayList<String> classlist = new ArrayList<String>();
     boolean loginAs;
     SharedPrefSession sp;
@@ -68,6 +69,7 @@ public class SelectTeacher extends AppCompatActivity {
         i.putExtra("Teacherlist", teacherlist);
         i.putExtra("Classlist", classlist);
         i.putExtra("Subjectlist", subjectlist);
+        i.putExtra("Sessionlist", sessionlist);
         i.putExtra("LoginAs", loginAs);
       //  sp.createLoginSession(loginAs);
         startActivity(i);
@@ -90,6 +92,7 @@ public class SelectTeacher extends AppCompatActivity {
             teacherlist = (ArrayList<String>) getIntent().getSerializableExtra("Teacherlist");
             subjectlist = (ArrayList<String>) getIntent().getSerializableExtra("Subjectlist");
             classlist = (ArrayList<String>) getIntent().getSerializableExtra("Classlist");
+            sessionlist=(ArrayList<String>) getIntent().getSerializableExtra("Sessionlist");
             loginAs = b.getBoolean("LoginAs");
         }
         teacherspinner.setItem(teacherlist);

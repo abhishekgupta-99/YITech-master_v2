@@ -130,6 +130,7 @@ public class SchoolLogin extends AppCompatActivity {
             i.putExtra("School name", info.sc_name + "");
             i.putExtra("Teacherlist", info.teacherlist);
             i.putExtra("Classlist", info.classlist);
+            i.putExtra("Sessionlist",info.sessionlist);
             i.putExtra("Subjectlist", info.subjectlist);
             i.putExtra("LoginAs", loginAs);
             i.putExtra("master_url",master_url);

@@ -59,7 +59,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
     String wp_roll_nos = "";
     TextView student,status,mark;
     TextView teacher, class_div, subject;
-    String t, c, s, class_gs;
+    String t, c, s, class_gs,sess;
     boolean loginAs;
     Button bt_save;
     private String userEnterUrl="";
@@ -128,15 +128,19 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 
 
         if (b != null) {
-            t = "Teacher : " + b.getString("Teacher");
+            t= b.getString("Teacher");
+            s= b.getString("Subject");
+            sess= b.getString("Session");
+            String tv_t = "Teacher : " + b.getString("Teacher");
             class_gs = b.getString("Class");
-            c = "Class : " + b.getString("Class");
-            s = "Subject : " + b.getString("Subject");
+            String tv_s = "Subject : " + b.getString("Subject");
+            String tv_c = "Class : " + b.getString("Class") + "    Session : " + b.getString("Session");
+
             loginAs = b.getBoolean("LoginAs");
             userEnterUrl=b.getString("UserEnterUrl");
-            teacher.setText(t);
-            class_div.setText(c);
-            subject.setText(s);
+            teacher.setText(tv_t);
+            class_div.setText(tv_c);
+            subject.setText(tv_s);
         }
 
     }
@@ -402,6 +406,11 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
                 parmas.put("present",present_roll_nos);
                 parmas.put("withpermission",wp_roll_nos);
                 parmas.put("class", class_gs);
+                parmas.put("selected_teacher",t);
+                parmas.put("teacher_email",sp.get_email_id_loggedin());
+                parmas.put("selected_session",sess);
+                parmas.put("selected_subject",s);
+
 
 
                 return parmas;
@@ -483,5 +492,17 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 
         // Show Dialog
         mBottomSheetDialog.show();
+    }
+
+    public void markallpresent(View view) {
+        present_roll_nos=",";
+        absent_roll_nos="";
+        wp_roll_nos="";
+        for(int i=1;i<=mAdapter.getItemCount();i++)
+        {
+            present_roll_nos=present_roll_nos+i+",";
+        }
+        confirm_material_dialogbox(view);
+
     }
 }

@@ -155,6 +155,24 @@
             app:smsp_multilineError="false"
             app:smsp_selectedItemListColor="@color/md_blue_200" />
 
+        <com.chivorn.smartmaterialspinner.SmartMaterialSpinner
+            android:id="@+id/sessionspinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:smsp_floatingLabelColor="@color/md_blue_200"
+            app:smsp_hint="Select Session"
+            app:smsp_hintColor="#C5C5C5"
+            app:smsp_hintSize="20sp"
+            app:smsp_isReSelectable="true"
+            app:smsp_isSearchable="true"
+            app:smsp_itemColor="@color/background900"
+            app:smsp_itemListColor="@color/background900"
+            app:smsp_itemListHintBackgroundColor="#808080"
+            app:smsp_itemListHintColor="#FFFFFF"
+            app:smsp_multilineError="false"
+            app:smsp_selectedItemListColor="@color/md_blue_200" />
+
+
     </LinearLayout>
 
     <!--    <com.google.android.material.progressindicator.CircularProgressIndicator-->

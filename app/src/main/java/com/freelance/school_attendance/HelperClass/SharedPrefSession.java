@@ -36,6 +36,7 @@ public class SharedPrefSession {
 
 
     private static final String TEACHER_NAME = "teacher";
+    private static final String TEACHER_EMAIL = "teacher_email";
 
     private static final String IS_SLAVE_DIALOGBOX_USER_ENTERED_URL_CORRECT = "IsSlaveDialogUrlCorrect";
 
@@ -217,5 +218,18 @@ public String get_prev_slave_dialog_url_entered()
 
     public String getTeacherName() {
         return pref.getString(TEACHER_NAME,"");
+    }
+
+    public void set_email_id_loggedin(String email) {
+
+        editor.putString(TEACHER_EMAIL,email);
+        editor.commit();
+
+    }
+
+    public String get_email_id_loggedin() {
+
+        return pref.getString(TEACHER_EMAIL,"Couldh not fetch");
+
     }
 }

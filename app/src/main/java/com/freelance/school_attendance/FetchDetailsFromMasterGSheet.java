@@ -29,10 +29,12 @@ public class FetchDetailsFromMasterGSheet {
     ArrayList<String> teacherlist = new ArrayList<String>();
     ArrayList<String> subjectlist = new ArrayList<String>();
     ArrayList<String> classlist = new ArrayList<String>();
+    ArrayList<String> sessionlist = new ArrayList<String>();
     String sc_name, sc_SIN, sc_pw;
     Context ctx;
     String Master_url;
     ProgressDialog indicator;
+
 
     public FetchDetailsFromMasterGSheet(Context ctx, ProgressDialog indicator, String master_url) {
         this.Master_url=master_url;
@@ -127,10 +129,11 @@ public class FetchDetailsFromMasterGSheet {
             JSONArray classarray = jobj.getJSONArray("classes");
             JSONArray subjectarray = jobj.getJSONArray("subjects");
             JSONArray schoolcredentials = jobj.getJSONArray("school_details");
-
+            JSONArray sessionarray = jobj.getJSONArray("sessions");
             school_idpw(schoolcredentials);
             create_ArrayList(teacherarray, teacherlist);
             create_ArrayList(classarray, classlist);
+            create_ArrayList(sessionarray, sessionlist);
             create_ArrayList(subjectarray, subjectlist);
 
            // indicator.setVisibility(View.GONE);

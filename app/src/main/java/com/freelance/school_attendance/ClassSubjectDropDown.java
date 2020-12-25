@@ -46,13 +46,15 @@ public class ClassSubjectDropDown extends AppCompatActivity {
     private SmartMaterialSpinner classspinner, teacherspinner;
     private List<String> provinceList;
     FetchDetailsFromMasterGSheet info;
-    String selected_class, selected_teacher, selected_subject;
+    String selected_class, selected_teacher, selected_subject, selected_session;
     ArrayList<String> teacherlist = new ArrayList<String>();
     ArrayList<String> subjectlist = new ArrayList<String>();
     ArrayList<String> classlist = new ArrayList<String>();
     boolean loginAs;
     SharedPrefSession sp;
     private String master_url;
+     ArrayList<String> sessionlist=new ArrayList<String>();
+     SmartMaterialSpinner sessionspinner;
 
 
     @Override
@@ -90,6 +92,7 @@ public class ClassSubjectDropDown extends AppCompatActivity {
             teacherlist = (ArrayList<String>) getIntent().getSerializableExtra("Teacherlist");
             subjectlist = (ArrayList<String>) getIntent().getSerializableExtra("Subjectlist");
             classlist = (ArrayList<String>) getIntent().getSerializableExtra("Classlist");
+            sessionlist=(ArrayList<String>) getIntent().getSerializableExtra("Sessionlist");
             loginAs = b.getBoolean("LoginAs");
             master_url=b.getString("master_url");
 
@@ -101,6 +104,7 @@ public class ClassSubjectDropDown extends AppCompatActivity {
     private void initSpinner() {
         subjectspinner = findViewById(R.id.subjectspinner);
         classspinner = findViewById(R.id.classspinner);
+        sessionspinner= findViewById(R.id.sessionspinner);
        // teacherspinner = findViewById(R.id.teacherspinner);
 
 
@@ -117,10 +121,13 @@ public class ClassSubjectDropDown extends AppCompatActivity {
             subjectlist=info.subjectlist;
             classlist=info.classlist;
             teacherlist=info.teacherlist;
+            sessionlist=info.sessionlist;
         }
 
         subjectspinner.setItem(subjectlist);
         classspinner.setItem(classlist);
+//        Log.d("SESSION SIZE", sessionlist.size()+"");
+        sessionspinner.setItem(sessionlist);
        // teacherspinner.setItem(teacherlist);
 
 
@@ -185,6 +192,7 @@ public class ClassSubjectDropDown extends AppCompatActivity {
             JSONArray teacherarray = jobj.getJSONArray("teachers_name");
             JSONArray classarray = jobj.getJSONArray("classes");
             JSONArray subjectarray = jobj.getJSONArray("subjects");
+            JSONArray sessionarray = jobj.getJSONArray("sessions");
 
 //            create_ArrayList(teacherarray,teacherlist);
 //            create_ArrayList(classarray,classlist);
@@ -215,7 +223,8 @@ public class ClassSubjectDropDown extends AppCompatActivity {
         Intent i = new Intent(this, FetchStudentsAttendanceFromSlaveGsheet.class);
         i.putExtra("Teacher", sp.getTeacherName());
         i.putExtra("Class", selected_class);
-        i.putExtra("Subject", selected_subject);
+        i.putExtra("Subject",selected_subject);
+        i.putExtra("Session", selected_session);
         i.putExtra("LoginAs", loginAs);
        // i.putExtra("UserEnterUrl", url);
         startActivity(i);
@@ -251,6 +260,19 @@ public class ClassSubjectDropDown extends AppCompatActivity {
         });
 
 
+        sessionspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                //  selected_class=info.classlist.get(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                Toast.makeText(ClassSubjectDropDown.this, "Please Select From the Drop Down", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
         // Log.d("SELECTEEED",teacherspinner.getSelectedItem()+"");
 
 
@@ -271,8 +293,11 @@ public class ClassSubjectDropDown extends AppCompatActivity {
 
 
       //  selected_teacher = teacherspinner.getSelectedItem() + "";
+
+
         selected_class = classspinner.getSelectedItem() + "";
         selected_subject = subjectspinner.getSelectedItem() + "";
+        selected_session = sessionspinner.getSelectedItem() + "";
 
         markAttendance();
 

@@ -82,6 +82,9 @@ public class AppIntroFirstPage extends Activity {
 
         try {
             GoogleSignInAccount account = task.getResult(ApiException.class);
+            if(account != null)
+            sp.set_email_id_loggedin(account.getEmail());
+
 
             Toast.makeText(this, "Successful Sign In", Toast.LENGTH_SHORT).show();
 
