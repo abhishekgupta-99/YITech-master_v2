@@ -1,8 +1,11 @@
 package com.freelance.school_attendance;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -113,11 +116,23 @@ public class ClassSubjectDropDown extends AppCompatActivity {
        // if((subjectlist==null && subjectlist.isEmpty())||(teacherlist==null && teacherlist.isEmpty())||(classlist==null && classlist.isEmpty()))
        if(subjectlist==null || subjectlist.isEmpty())
         {
+
            ProgressDialog loading = ProgressDialog.show(this, "Loading", "Fetching Credentials", false, true);
             loading.setCanceledOnTouchOutside(false);
             loading.setCancelable(false);
+
+
+
            FetchDetailsFromMasterGSheet info = new FetchDetailsFromMasterGSheet(this, loading, sp.get_prev_master_dialog_url_entered());
-            info.getItems();
+            if(!checkInternetConnectivity())
+            {
+                info.parseItems(sp.get_dropdowndata_offline());
+            }
+            else
+            {
+                info.getItems();
+            }
+
             subjectlist=info.subjectlist;
             classlist=info.classlist;
             teacherlist=info.teacherlist;
@@ -138,49 +153,55 @@ public class ClassSubjectDropDown extends AppCompatActivity {
 
     }
 
-    private void getItems() {
-
-
-        final RequestQueue queue = Volley.newRequestQueue(this);
-        //  final String url = "https://script.google.com/macros/s/AKfycbxueYt0iOuJN6iPKJKG35CSKDegfuvQ3ls3yENsaefg2qVqGiS_/exec?action=getItems";
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://script.google.com/macros/s/AKfycbz938aPu6B_i3RootSMc4JpFKgA09uMhEyUMsK6F9BT0ijJJAAT/exec?action=getItems",
-                new Response.Listener<String>() {
-
-                    @Override
-                    public void onResponse(String response) {
-                        parseItems(response);
-
-
-                        Log.d("ANSRESPONSE", response);
-                    }
-                },
-
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-
-                    }
-                }
-        ) {
-            @Override
-            public void deliverError(VolleyError error) {
-                if (error instanceof NoConnectionError) {
-                    Cache.Entry entry = this.getCacheEntry();
-                    if (entry != null) {
-                        Response<String> response = parseNetworkResponse(new NetworkResponse(HttpURLConnection.HTTP_OK,
-                                entry.data, false, 0, entry.allResponseHeaders));
-                        Log.d("FAILED CACHE", response.toString());
-                        deliverResponse(response.result);
-                        return;
-                    }
-                } else
-                    super.deliverError(error);
-            }
-        };
-        queue.add(stringRequest);
-
+    private boolean checkInternetConnectivity() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
+//    private void getItems() {
+//
+//
+//        final RequestQueue queue = Volley.newRequestQueue(this);
+//        //  final String url = "https://script.google.com/macros/s/AKfycbxueYt0iOuJN6iPKJKG35CSKDegfuvQ3ls3yENsaefg2qVqGiS_/exec?action=getItems";
+//        StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://script.google.com/macros/s/AKfycbz938aPu6B_i3RootSMc4JpFKgA09uMhEyUMsK6F9BT0ijJJAAT/exec?action=getItems",
+//                new Response.Listener<String>() {
+//
+//                    @Override
+//                    public void onResponse(String response) {
+//                        parseItems(response);
+//
+//
+//                        Log.d("ANSRESPONSE", response);
+//                    }
+//                },
+//
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        error.printStackTrace();
+//
+//                    }
+//                }
+//        ) {
+//            @Override
+//            public void deliverError(VolleyError error) {
+//                if (error instanceof NoConnectionError) {
+//                    Cache.Entry entry = this.getCacheEntry();
+//                    if (entry != null) {
+//                        Response<String> response = parseNetworkResponse(new NetworkResponse(HttpURLConnection.HTTP_OK,
+//                                entry.data, false, 0, entry.allResponseHeaders));
+//                        Log.d("FAILED CACHE", response.toString());
+//                        deliverResponse(response.result);
+//                        return;
+//                    }
+//                } else
+//                    super.deliverError(error);
+//            }
+//        };
+//        queue.add(stringRequest);
+//
+//    }
 
 
     private void parseItems(String jsonResposnce) {

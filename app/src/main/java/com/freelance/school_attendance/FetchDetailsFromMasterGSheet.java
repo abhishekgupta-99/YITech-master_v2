@@ -58,6 +58,10 @@ public class FetchDetailsFromMasterGSheet {
 
                     @Override
                     public void onResponse(String response) {
+
+                       SharedPrefSession sp=new SharedPrefSession(ctx);
+                       sp.set_dropdowndata_offline(response);
+
                         parseItems(response);
 
 

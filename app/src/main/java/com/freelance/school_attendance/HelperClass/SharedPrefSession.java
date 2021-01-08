@@ -42,10 +42,16 @@ public class SharedPrefSession {
 
     private static final String SLAVE_DIALOGBOX_USER_ENTERED_URL= "SlaveDialogGUrl";
 
+    private static final String LAST_ATTENDANCE_STORE_OFFLINE= "LastAttendance";
+    private static final String LAST_ATTENDANCE_SYNC_STATUS= "LastAttendanceSyncStatus";
+
 
     private static final String IS_MASTER_DIALOGBOX_USER_ENTERED_URL_CORRECT = "IsMasterDialogUrlCorrect";
 
     private static final String MASTER_DIALOGBOX_USER_ENTERED_URL= "MasterDialogGUrl";
+
+
+    private static final String DROP_DOWN_DATA= "TeachersClassSessionOffline";
 
 
 
@@ -199,7 +205,56 @@ public boolean get_slave_dialog_url_status()
 
 }
 
-public String get_prev_slave_dialog_url_entered()
+    public void set_dropdowndata_offline(String volley_response)
+    {
+        editor.putString(DROP_DOWN_DATA,volley_response);
+        editor.commit();
+    }
+
+    public String get_dropdowndata_offline()
+    {
+        return pref.getString(DROP_DOWN_DATA,"");
+
+    }
+
+    public void set_lastattendance_json_offline(String volley_response)
+    {
+        editor.putString(LAST_ATTENDANCE_STORE_OFFLINE,volley_response);
+        editor.commit();
+    }
+
+    public String get_lastattendance_json_offline()
+    {
+        return pref.getString(LAST_ATTENDANCE_STORE_OFFLINE,"");
+
+    }
+
+    public void set_last_att_synced_status(boolean status)
+    {
+        editor.putBoolean(LAST_ATTENDANCE_SYNC_STATUS,status);
+        editor.commit();
+    }
+
+    public boolean get_last_att_synced_status()
+    {
+        return pref.getBoolean(LAST_ATTENDANCE_SYNC_STATUS,true);
+
+    }
+
+
+    public void set_studentsdata_offline(String class_selected, String volley_response)
+    {
+        editor.putString(class_selected,volley_response);
+        editor.commit();
+    }
+
+    public String get_studentsdata_offline(String class_selected)
+    {
+        return pref.getString(class_selected,"");
+
+    }
+
+    public String get_prev_slave_dialog_url_entered()
 {
     return pref.getString(SLAVE_DIALOGBOX_USER_ENTERED_URL,_context.getString(R.string.Slave_gs_url));
 }

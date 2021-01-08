@@ -16,20 +16,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Cache;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
-import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.freelance.school_attendance.HelperClass.CacheRequest;
+import com.freelance.school_attendance.HelperClass.CheckInternetConnectivity;
 import com.freelance.school_attendance.HelperClass.RecyclerViewAdapter;
 import com.freelance.school_attendance.HelperClass.SharedPrefSession;
 import com.freelance.school_attendance.HelperClass.Student_Item_Card;
+import com.freelance.school_attendance.model.UpdateAttendaceToSheetModel;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.shreyaspatil.MaterialDialog.BottomSheetMaterialDialog;
 import com.shreyaspatil.MaterialDialog.interfaces.DialogInterface;
 
@@ -37,7 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.HttpURLConnection;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,7 +92,50 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         updateUIRole();
         mRecyclerview();
         //updateUI();
-        getItems();
+        loading = ProgressDialog.show(this, "Loading", "Updating App", false, true);
+        loading.setCanceledOnTouchOutside(false);
+        loading.setCancelable(false);
+
+        if(CheckInternetConnectivity.checkInternetConnectivity(this))
+        {
+            if(!sp.get_last_att_synced_status())
+            {
+                BottomSheetMaterialDialog mBottomSheetDialog = new BottomSheetMaterialDialog.Builder(this)
+                        .setTitle("Sync Last Attendance")
+                        .setMessage("Please sync the last attendance before you proceed.")
+                        .setCancelable(false)
+                        .setAnimation(R.raw.uploading)
+                        .setPositiveButton("Upload Last Attendance", new BottomSheetMaterialDialog.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int which) {
+                                // Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_SHORT).show();
+                                dialogInterface.dismiss();
+                                update_absent_students_GOOGLESHEET(sp.get_last_att_synced_status(),true);
+                               // Update_Google_Sheet();
+                            }
+                        })
+//                        .setNegativeButton("Cancel", new BottomSheetMaterialDialog.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int which) {
+//                                //Toast.makeText(getApplicationContext(), "Cancelled!", Toast.LENGTH_SHORT).show();
+//                                dialogInterface.dismiss();
+//                            }
+//                        })
+                        .build();
+
+                // Show Dialog
+                mBottomSheetDialog.show();
+            }
+            else {
+                getItems();
+            }
+        }
+        else
+        {
+            parseItems(sp.get_studentsdata_offline(class_gs));
+
+        }
+
 
 //call this function for hardcoded set of values
         //student_list = dataset();
@@ -147,25 +194,54 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 
     private void getItems() {
 
-          loading = ProgressDialog.show(this, "Loading", "Updating App", false, true);
-        loading.setCanceledOnTouchOutside(false);
-        loading.setCancelable(false);
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        // String url = "http://192.168.0.100/apitest";
+
+        CacheRequest cacheRequest = new CacheRequest(0, getApplicationContext(), userEnterUrl, sp.get_prev_master_dialog_url_entered()+"?action=getStudents&class=" + class_gs, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                  //  JSONObject jsonObject = new JSONObject(jsonString);
+                    sp.set_studentsdata_offline(class_gs,jsonString);
+
+                    parseItems(jsonString);
+
+                    Toast.makeText(FetchStudentsAttendanceFromSlaveGsheet.this, "onResponse:\n\n" + jsonString, Toast.LENGTH_SHORT).show();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(FetchStudentsAttendanceFromSlaveGsheet.this, "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+    }
 ////////////////////////////////////////////////////////////////////////////Working////////////
-        final RequestQueue queue = Volley.newRequestQueue(this);
+
+/*
+        final RequestQueue q = Volley.newRequestQueue(this);
         // original     final String url = "https://script.google.com/macros/s/AKfycbxueYt0iOuJN6iPKJKG35CSKDegfuvQ3ls3yENsaefg2qVqGiS_/exec?action=getItems";
         // original  StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://script.google.com/macros/s/AKfycbxueYt0iOuJN6iPKJKG35CSKDegfuvQ3ls3yENsaefg2qVqGiS_/exec?action=getItems",
 
 
-       // StringRequest stringRequest = new StringRequest(Request.Method.GET, getString(R.string.Slave_gs_url) + "?action=getItems&class=" + class_gs,
+        // StringRequest stringRequest = new StringRequest(Request.Method.GET, getString(R.string.Slave_gs_url) + "?action=getItems&class=" + class_gs,
         //StringRequest stringRequest = new StringRequest(Request.Method.GET,userEnterUrl + "?action=getItems&class=" + class_gs,
-                StringRequest stringRequest = new StringRequest(Request.Method.GET ,sp.get_prev_master_dialog_url_entered()+"?action=getStudents&class=" + class_gs,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, sp.get_prev_master_dialog_url_entered() + "?action=getStudents&class=" + class_gs,
                 new Response.Listener<String>() {
-
-
                     @Override
                     public void onResponse(String response) {
                         parseItems(response);
-                }
+                    }
                 },
 
                 new Response.ErrorListener() {
@@ -173,7 +249,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
                         SharedPrefSession sp;
-                        sp=new SharedPrefSession(getApplicationContext());
+                        sp = new SharedPrefSession(getApplicationContext());
                         sp.set_master_dialog_url_status(false, "");
                         Toast.makeText(FetchStudentsAttendanceFromSlaveGsheet.this, "Could not fetch details ! ", Toast.LENGTH_LONG).show();
 
@@ -183,19 +259,19 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 
             @Override
             protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                if(response!=null)
-                { SharedPrefSession sp;
-                    sp=new SharedPrefSession(getApplicationContext());
+                Log.d("RESPONSE HEADER", response.headers.toString());
+                Log.d("RESPONSE data", response.data.toString());
 
-                    if(response.statusCode== HttpURLConnection.HTTP_OK)
-                {
+                if (response != null) {
+                    SharedPrefSession sp;
+                    sp = new SharedPrefSession(getApplicationContext());
 
-                    sp.set_slave_dialog_url_status(true, userEnterUrl);
-                }
-                else
-                {
-                    sp.set_slave_dialog_url_status(false, userEnterUrl);
-                }
+                    if (response.statusCode == HttpURLConnection.HTTP_OK) {
+
+                        sp.set_slave_dialog_url_status(true, userEnterUrl);
+                    } else {
+                        sp.set_slave_dialog_url_status(false, userEnterUrl);
+                    }
 
                 }
 
@@ -219,43 +295,11 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         };
 
 
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                0,
-                2,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(0, 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        q.add(stringRequest);
 
-        queue.add(stringRequest);
-
-
-//
-//
-//        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "https://script.google.com/macros/s/AKfycbxueYt0iOuJN6iPKJKG35CSKDegfuvQ3ls3yENsaefg2qVqGiS_/exec?action=getItems", null,
-//                new Response.Listener<JSONObject>() {
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//                       // System.out.println("response -->> " + response.toString());
-//                            Log.d("JRESPONSE",response.toString());
-//                        Toast.makeText(MainActivity.this, response.toString(), Toast.LENGTH_SHORT).show();
-//                      //  parseItems(response);
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        System.out.println("change Pass response -->> " + error.toString());
-//                    }
-//                });
-//
-//        request.setRetryPolicy(new
-//
-//                DefaultRetryPolicy(60000,
-//                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-//                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//
-//
-//        Volley.newRequestQueue(MainActivity.this).add(request);
     }
-
+*/
 
     private void parseItems(String jsonResposnce) {
         ArrayList<Student_Item_Card> list = new ArrayList<Student_Item_Card>();
@@ -365,7 +409,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 //    }
 
 
-    public void update_absent_students_GOOGLESHEET() {
+    public void update_absent_students_GOOGLESHEET(final boolean syncstatus, final boolean isinternetavailable) {
 
         //https://script.google.com/macros/s/AKfycbzpTPG7TKiURwb017csK3aoBKakNUgmSf7utYSQuqixIqVLz3Q/exec
         final ProgressDialog loading = ProgressDialog.show(this, "Adding Details to Google Sheet", "Please wait");
@@ -374,12 +418,21 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        loading.dismiss();
-                        mAdapter.empty_Students_arraylist();
+                        sp.set_last_att_synced_status(true);
+
+                        try {
+                            mAdapter.empty_Students_arraylist();
+                        }
+                        catch (Exception e)
+                        {
+                            
+                        }
+
                         //  Toast.makeText(MainActivity.this,response,Toast.LENGTH_LONG).show();
                         absent_roll_nos = "";
                         present_roll_nos="";
                         wp_roll_nos="";
+                        loading.dismiss();
                        // getItems();
                         Intent intent = new Intent(getApplicationContext(),ClassSubjectDropDown.class);
                         intent.putExtra("LoginAs",loginAs);
@@ -396,24 +449,28 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         ) {
             @Override
             protected Map<String, String> getParams() {
-                Map<String, String> parmas = new HashMap<>();
+                Map<String,String> hm=new HashMap<String, String>();
+                Gson gson = new Gson();
 
-                //here we pass params
+                if(!syncstatus && isinternetavailable)
+                {
 
-                parmas.put("action", "addAtt");
-                Log.d("absentrolls", absent_roll_nos + "");
-                parmas.put("absent", absent_roll_nos);
-                parmas.put("present",present_roll_nos);
-                parmas.put("withpermission",wp_roll_nos);
-                parmas.put("class", class_gs);
-                parmas.put("selected_teacher",t);
-                parmas.put("teacher_email",sp.get_email_id_loggedin());
-                parmas.put("selected_session",sess);
-                parmas.put("selected_subject",s);
+                    String att_json_data= sp.get_lastattendance_json_offline();
+                //  UpdateAttendaceToSheetModel model= gson.fromJson(sp.get_lastattendance_json_offline(), UpdateAttendaceToSheetModel.class);
+                     hm = new Gson().fromJson(att_json_data, new TypeToken<HashMap<String, String>>(){}.getType());
+                }
+
+                if(syncstatus && isinternetavailable)
+                {
+                    hm=hashmapbuildertopostatt();
+//                    String jsonString = gson.toJson(hm);
+//                    sp.set_lastattendance_json_offline(jsonString);
+
+                }
 
 
 
-                return parmas;
+                return hm;
             }
         };
 
@@ -426,6 +483,22 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 
         queue.add(stringRequest);
 
+    }
+
+    private Map<String, String> hashmapbuildertopostatt() {
+        Map<String, String> parmas = new HashMap<>();
+        parmas.put("action", "addAtt");
+        Log.d("absentrolls", absent_roll_nos + "");
+        parmas.put("absent", absent_roll_nos);
+        parmas.put("present",present_roll_nos);
+        parmas.put("withpermission",wp_roll_nos);
+        parmas.put("class", class_gs);
+        parmas.put("selected_teacher",t);
+        parmas.put("teacher_email",sp.get_email_id_loggedin());
+        parmas.put("selected_session",sess);
+        parmas.put("selected_subject",s);
+
+        return parmas;
     }
 
     public void Update_Google_Sheet() {
@@ -459,21 +532,41 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 
         }
 
+
+
         Log.d("PPPPPPPPP", present_roll_nos);
         Log.d("AAAA",absent_roll_nos);
         Log.d("wwwwwwwwppp",wp_roll_nos);
 
-        update_absent_students_GOOGLESHEET();
+        if(CheckInternetConnectivity.checkInternetConnectivity(this))
+        {
+            update_absent_students_GOOGLESHEET(true, true);
+        }
+        else
+        {
+            Map<String, String> hm = hashmapbuildertopostatt();
+            Gson gson = new Gson();
+            String jsonString = gson.toJson(hm);
+            sp.set_lastattendance_json_offline(jsonString);
+            sp.set_last_att_synced_status(false);
+            loading.dismiss();
+            Intent i=new Intent(this, ClassSubjectDropDown.class);
+            i.putExtra("LoginAs",loginAs);
+            startActivity(i);
+        }
+
+
     }
 
     public void confirm_material_dialogbox(View view) {
+        boolean internetAvailable= CheckInternetConnectivity.checkInternetConnectivity(this);
 
         BottomSheetMaterialDialog mBottomSheetDialog = new BottomSheetMaterialDialog.Builder(this)
-                .setTitle("Upload?")
-                .setMessage("Are you sure want to update this attendance to Google Sheet?")
+                .setTitle(internetAvailable? "Upload?":"No Internet")
+                .setMessage(internetAvailable?"Are you sure want to update this attendance to Google Sheet?":"You are offline. The attendance will be updated next time when you connect to Internet")
                 .setCancelable(false)
-                .setAnimation(R.raw.uploading)
-                .setPositiveButton("Upload", new BottomSheetMaterialDialog.OnClickListener() {
+                .setAnimation(internetAvailable? R.raw.uploading: R.raw.nointernet)
+                .setPositiveButton(internetAvailable?"Upload":"Store Offline", new BottomSheetMaterialDialog.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
                         // Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_SHORT).show();
