@@ -227,9 +227,9 @@ public boolean get_slave_dialog_url_status()
     {
         return pref.getString(LAST_ATTENDANCE_STORE_OFFLINE,"");
 
-    }
 
-    public void set_last_att_synced_status(boolean status)
+}
+    public void set_last_att_synced_status( boolean status)
     {
         editor.putBoolean(LAST_ATTENDANCE_SYNC_STATUS,status);
         editor.commit();

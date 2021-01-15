@@ -3,6 +3,7 @@ package com.freelance.school_attendance;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,9 +13,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
@@ -26,11 +30,17 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.desmond.asyncmanager.AsyncManager;
+import com.desmond.asyncmanager.TaskRunnable;
 import com.freelance.school_attendance.HelperClass.CacheRequest;
 import com.freelance.school_attendance.HelperClass.CheckInternetConnectivity;
 import com.freelance.school_attendance.HelperClass.RecyclerViewAdapter;
 import com.freelance.school_attendance.HelperClass.SharedPrefSession;
 import com.freelance.school_attendance.HelperClass.Student_Item_Card;
+import com.freelance.school_attendance.RoomOfflinePersistence.PostRoomDataToSheets;
+import com.freelance.school_attendance.RoomOfflinePersistence.db.AttendanceOfflineDatabase;
+import com.freelance.school_attendance.RoomOfflinePersistence.entity.AttendanceRecordOffline;
+import com.freelance.school_attendance.RoomOfflinePersistence.repository.AttendanceOfflineRepository;
 import com.freelance.school_attendance.model.UpdateAttendaceToSheetModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -44,6 +54,7 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
@@ -53,6 +64,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
     private static FetchStudentsAttendanceFromSlaveGsheet mInstance;
     private RequestQueue mRequestQueue;
     SharedPrefSession sp;
+    PostRoomDataToSheets pd;
 
     private DatabaseHelper db;
     EditText studentname;
@@ -60,6 +72,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
     public ArrayList<Student_Item_Card> student_list;
     String absent_roll_nos="";
     String present_roll_nos="";
+    boolean markallP=false;
     String wp_roll_nos = "";
     TextView student,status,mark;
     TextView teacher, class_div, subject;
@@ -67,6 +80,8 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
     boolean loginAs;
     Button bt_save;
     private String userEnterUrl="";
+    AttendanceRecordOffline attoff;
+    List<AttendanceRecordOffline> recordsdata;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +125,9 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
                             public void onClick(DialogInterface dialogInterface, int which) {
                                 // Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_SHORT).show();
                                 dialogInterface.dismiss();
-                                update_absent_students_GOOGLESHEET(sp.get_last_att_synced_status(),true);
+                                final ProgressDialog loading = ProgressDialog.show(FetchStudentsAttendanceFromSlaveGsheet.this, "Adding Offline Attendance to Google Sheet", "Please wait");
+                                getTasks(loading);
+                               // update_absent_students_GOOGLESHEET(sp.get_last_att_synced_status(class_gs),true);
                                // Update_Google_Sheet();
                             }
                         })
@@ -132,7 +149,16 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         }
         else
         {
-            parseItems(sp.get_studentsdata_offline(class_gs));
+            String offcachedata= sp.get_studentsdata_offline(class_gs);
+            if(offcachedata.equals("") || offcachedata == null)
+            {
+                Toast.makeText(this, "No offline data to display. Please connect to internet !", Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                parseItems(offcachedata);
+            }
+
 
         }
 
@@ -151,6 +177,48 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
             }
         });*/
 
+    }
+
+    public void getTasks(final ProgressDialog loading) {
+        String DB_NAME = "db_task";
+
+        final AttendanceOfflineDatabase attoffDatabase = Room.databaseBuilder(this, AttendanceOfflineDatabase.class, DB_NAME).build();
+        pd= new PostRoomDataToSheets(FetchStudentsAttendanceFromSlaveGsheet.this,sp,class_gs, mAdapter, loading, attoffDatabase);
+        AsyncManager.runBackgroundTask(new TaskRunnable<Void, List<AttendanceRecordOffline>, Void>() {
+            @Override
+            public List<AttendanceRecordOffline> doLongOperation(Void params) throws InterruptedException {
+                // checkForThreadInterruption();
+                // Your long operation
+                 recordsdata = attoffDatabase.daoAccess().fetchAllTasks();
+
+                // Log.d("Offline repo", note.getAction());
+                //  Toast.makeText(ctx, "Repo saved", Toast.LENGTH_SHORT).show();
+                return recordsdata;
+            }
+
+            // Override this callback if you need to handle the result on the UI thread
+            @Override
+            public void callback(List<AttendanceRecordOffline> recordsdata) {
+
+                if(recordsdata.size()>0)
+                {   pd.post_roomdata_to_Gsheets(recordsdata, 0);
+
+                }
+                else {
+                    sp.set_last_att_synced_status(true);
+                    Toast.makeText(FetchStudentsAttendanceFromSlaveGsheet.this, "No offline data to sync", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                    Intent intent = new Intent(FetchStudentsAttendanceFromSlaveGsheet.this, ClassSubjectDropDown.class);
+                    intent.putExtra("LoginAs",0);
+                    startActivity(intent);
+                }
+
+
+                // Handle the result from doLongOperation()
+               // loading.dismiss();
+
+            }
+        });
     }
 
     private void updateUIRole() {
@@ -211,7 +279,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 
                     parseItems(jsonString);
 
-                    Toast.makeText(FetchStudentsAttendanceFromSlaveGsheet.this, "onResponse:\n\n" + jsonString, Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(FetchStudentsAttendanceFromSlaveGsheet.this, "onResponse:\n\n" + jsonString, Toast.LENGTH_SHORT).show();
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
@@ -219,7 +287,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(FetchStudentsAttendanceFromSlaveGsheet.this, "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+              // Toast.makeText(FetchStudentsAttendanceFromSlaveGsheet.this, "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -418,17 +486,15 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        sp.set_last_att_synced_status(true);
+                        //sp.set_last_att_synced_status(class_gs, true);
 
                         try {
                             mAdapter.empty_Students_arraylist();
                         }
                         catch (Exception e)
                         {
-                            
-                        }
 
-                        //  Toast.makeText(MainActivity.this,response,Toast.LENGTH_LONG).show();
+                        }
                         absent_roll_nos = "";
                         present_roll_nos="";
                         wp_roll_nos="";
@@ -452,15 +518,15 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
                 Map<String,String> hm=new HashMap<String, String>();
                 Gson gson = new Gson();
 
-                if(!syncstatus && isinternetavailable)
-                {
+//                if(!syncstatus && isinternetavailable)
+//                {
+//
+//                    String att_json_data= sp.get_lastattendance_json_offline();
+//                //  UpdateAttendaceToSheetModel model= gson.fromJson(sp.get_lastattendance_json_offline(), UpdateAttendaceToSheetModel.class);
+//                     hm = new Gson().fromJson(att_json_data, new TypeToken<HashMap<String, String>>(){}.getType());
+//                }
 
-                    String att_json_data= sp.get_lastattendance_json_offline();
-                //  UpdateAttendaceToSheetModel model= gson.fromJson(sp.get_lastattendance_json_offline(), UpdateAttendaceToSheetModel.class);
-                     hm = new Gson().fromJson(att_json_data, new TypeToken<HashMap<String, String>>(){}.getType());
-                }
-
-                if(syncstatus && isinternetavailable)
+                if(isinternetavailable)
                 {
                     hm=hashmapbuildertopostatt();
 //                    String jsonString = gson.toJson(hm);
@@ -509,53 +575,60 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         ArrayList<Student_Item_Card> present_students = mAdapter.getPresentStudents();
         ArrayList<Student_Item_Card> with_permission_students = mAdapter.getWithPermission();
 
-        for (int i = 0; i < absent_students.size(); i++) {
-            if(!absent_students.get(i).get_roll_no().equals("null")) {
-                String absent_rollno = absent_students.get(i).get_roll_no();
-                absent_roll_nos = absent_roll_nos + "," + absent_rollno;
-            }
-        }
-
-        for (int i = 0; i < present_students.size(); i++) {
-            if(!present_students.get(i).get_roll_no().equals("null")) {
-                String present_rollno = present_students.get(i).get_roll_no();
-                present_roll_nos = present_roll_nos + "," + present_rollno;
-            }
-        }
-
-        for (int i = 0; i < with_permission_students.size(); i++) {
-            if(!with_permission_students.get(i).get_roll_no().equals("null"))
-            {
-                String wp_rollno = with_permission_students.get(i).get_roll_no();
-                wp_roll_nos = wp_roll_nos + "," + wp_rollno;
-            }
-
-        }
-
-
-
-        Log.d("PPPPPPPPP", present_roll_nos);
-        Log.d("AAAA",absent_roll_nos);
-        Log.d("wwwwwwwwppp",wp_roll_nos);
-
-        if(CheckInternetConnectivity.checkInternetConnectivity(this))
+        if(!markallP && (absent_students.size() == 0) && (present_students.size() == 0) && (with_permission_students.size() == 0))
         {
-            update_absent_students_GOOGLESHEET(true, true);
+            Toast.makeText(this, "No attendance selected. Cannot update to sheet !", Toast.LENGTH_SHORT).show();
+
         }
-        else
-        {
-            Map<String, String> hm = hashmapbuildertopostatt();
-            Gson gson = new Gson();
-            String jsonString = gson.toJson(hm);
-            sp.set_lastattendance_json_offline(jsonString);
-            sp.set_last_att_synced_status(false);
-            loading.dismiss();
-            Intent i=new Intent(this, ClassSubjectDropDown.class);
-            i.putExtra("LoginAs",loginAs);
-            startActivity(i);
-        }
+        else {
+
+            for (int i = 0; i < absent_students.size(); i++) {
+                if (!absent_students.get(i).get_roll_no().equals("null")) {
+                    String absent_rollno = absent_students.get(i).get_roll_no();
+                    absent_roll_nos = absent_roll_nos + "," + absent_rollno;
+                }
+            }
+
+            for (int i = 0; i < present_students.size(); i++) {
+                if (!present_students.get(i).get_roll_no().equals("null")) {
+                    String present_rollno = present_students.get(i).get_roll_no();
+                    present_roll_nos = present_roll_nos + "," + present_rollno;
+                }
+            }
+
+            for (int i = 0; i < with_permission_students.size(); i++) {
+                if (!with_permission_students.get(i).get_roll_no().equals("null")) {
+                    String wp_rollno = with_permission_students.get(i).get_roll_no();
+                    wp_roll_nos = wp_roll_nos + "," + wp_rollno;
+                }
+
+            }
 
 
+            Log.d("PPPPPPPPP", present_roll_nos);
+            Log.d("AAAA", absent_roll_nos);
+            Log.d("wwwwwwwwppp", wp_roll_nos);
+
+            if (CheckInternetConnectivity.checkInternetConnectivity(this)) {
+                update_absent_students_GOOGLESHEET(true, true);
+            } else {
+
+                AttendanceOfflineRepository repository = new AttendanceOfflineRepository(getApplicationContext(), sp);
+
+                repository.insertTask("addAtt", absent_roll_nos, present_roll_nos, wp_roll_nos, class_gs, t, sp.get_email_id_loggedin(), sess, s);
+
+//               Map<String, String> hm = hashmapbuildertopostatt();
+//                Gson gson = new Gson();
+//                String jsonString = gson.toJson(hm);
+//                sp.set_lastattendance_json_offline(jsonString);
+
+                loading.dismiss();
+                Intent i = new Intent(this, ClassSubjectDropDown.class);
+                i.putExtra("LoginAs", loginAs);
+                startActivity(i);
+            }
+
+        }
     }
 
     public void confirm_material_dialogbox(View view) {
@@ -591,6 +664,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         present_roll_nos=",";
         absent_roll_nos="";
         wp_roll_nos="";
+        markallP=true;
         for(int i=1;i<=mAdapter.getItemCount();i++)
         {
             present_roll_nos=present_roll_nos+i+",";
@@ -598,4 +672,5 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         confirm_material_dialogbox(view);
 
     }
+
 }

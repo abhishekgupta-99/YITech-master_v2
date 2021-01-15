@@ -76,6 +76,7 @@ public class FetchDetailsFromMasterGSheet {
                         SharedPrefSession sp;
                         sp=new SharedPrefSession(ctx);
                         Toast.makeText(ctx, "Error fetching Details !", Toast.LENGTH_LONG).show();
+                        indicator.dismiss();
                         sp.set_master_dialog_url_status(false, Master_url);
                         error.printStackTrace();
 
