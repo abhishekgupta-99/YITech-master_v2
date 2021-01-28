@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> implements View.OnClickListener {
-    private ArrayList<Student_Item_Card> mStudentItemCardList;
-    private ArrayList<Student_Item_Card> mStudentItemCardListFull;
+    public ArrayList<Student_Item_Card> mStudentItemCardList;
+    public ArrayList<Student_Item_Card> mStudentItemCardListFull;
     public boolean loginAs;
     Context context;
     public ArrayList<Student_Item_Card> absentStudents=new ArrayList<>();

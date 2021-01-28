@@ -66,7 +66,7 @@ public class AttendanceOfflineRepository {
         note.setWithpermission(withpermission);
         note.set_class(_class);
         note.setSelected_teacher(selected_teacher);
-        note.setSelected_session(selected_subject);
+        note.setSelected_session(selected_session);
         note.setSelected_subject(selected_subject);
         note.setTeacher_email(teacher_email);
 

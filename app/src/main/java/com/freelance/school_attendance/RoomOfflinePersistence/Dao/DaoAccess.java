@@ -6,10 +6,12 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
-
 import com.freelance.school_attendance.RoomOfflinePersistence.entity.AttendanceRecordOffline;
 
+
 import java.util.List;
+
+//Contributed by Abhishek Gupta on 1/23/2021
 
 @Dao
 public interface DaoAccess {

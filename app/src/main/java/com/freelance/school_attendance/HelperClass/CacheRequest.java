@@ -16,14 +16,14 @@ public class CacheRequest extends Request<NetworkResponse> {
     private final Response.Listener<NetworkResponse> mListener;
     private final Response.ErrorListener mErrorListener;
     private final Context ctx;
-    private final String userenterurl;
+   // private final String userenterurl;
 
-    public CacheRequest(int method, Context ctx, String userEnterUrl, String url, Response.Listener<NetworkResponse> listener, Response.ErrorListener errorListener) {
+    public CacheRequest(int method, Context ctx, String url, Response.Listener<NetworkResponse> listener, Response.ErrorListener errorListener) {
         super(method, url, errorListener);
         this.mListener = listener;
         this.mErrorListener = errorListener;
         this.ctx=ctx;
-        this.userenterurl=userEnterUrl;
+       // this.userenterurl=userEnterUrl;
     }
 
 
@@ -34,19 +34,19 @@ public class CacheRequest extends Request<NetworkResponse> {
             SharedPrefSession sp;
             sp = new SharedPrefSession(ctx);
 
-            if (response.statusCode == HttpURLConnection.HTTP_OK) {
-
-                sp.set_slave_dialog_url_status(true, userenterurl);
-            } else {
-                sp.set_slave_dialog_url_status(false, userenterurl);
-            }
+//            if (response.statusCode == HttpURLConnection.HTTP_OK) {
+//
+//                sp.set_slave_dialog_url_status(true, userenterurl);
+//            } else {
+//                sp.set_slave_dialog_url_status(false, userenterurl);
+//            }
 
         }
 
         if (cacheEntry == null) {
             cacheEntry = new Cache.Entry();
         }
-        final long cacheHitButRefreshed = 3 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+        final long cacheHitButRefreshed = 0 ;//3 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
         final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
         long now = System.currentTimeMillis();
         final long softExpire = now + cacheHitButRefreshed;

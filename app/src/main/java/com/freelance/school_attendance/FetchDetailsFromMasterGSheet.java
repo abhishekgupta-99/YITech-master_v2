@@ -34,12 +34,15 @@ public class FetchDetailsFromMasterGSheet {
     Context ctx;
     String Master_url;
     ProgressDialog indicator;
+    SharedPrefSession sp;
 
 
     public FetchDetailsFromMasterGSheet(Context ctx, ProgressDialog indicator, String master_url) {
         this.Master_url=master_url;
         this.ctx = ctx;
         this.indicator = indicator;
+
+        sp=  new SharedPrefSession(ctx);
     }
 
 
@@ -122,8 +125,12 @@ public class FetchDetailsFromMasterGSheet {
 
     }
 
+
+
+
 // This method takes the response from the getItems() method and breaks the json response into our required variables as shown in the function.
     public void parseItems(String jsonResposnce) {
+
         ArrayList<Student_Item_Card> list = new ArrayList<Student_Item_Card>();
 
 
@@ -141,8 +148,19 @@ public class FetchDetailsFromMasterGSheet {
             create_ArrayList(sessionarray, sessionlist);
             create_ArrayList(subjectarray, subjectlist);
 
-           // indicator.setVisibility(View.GONE);
             indicator.dismiss();
+
+           // ArrayList<String> classlist=info.classlist;
+
+            ProgressDialog loading_studentsdata = ProgressDialog.show(ctx, "Loading", "Updating Class Data", false, true);
+            loading_studentsdata.setCanceledOnTouchOutside(false);
+            loading_studentsdata.setCancelable(false);
+            GetAllClassesData getdata= new GetAllClassesData(ctx, classlist,sp, loading_studentsdata);
+            getdata.getItems(0);
+
+
+            // indicator.setVisibility(View.GONE);
+
 
             // initSpinner();
 
@@ -153,6 +171,55 @@ public class FetchDetailsFromMasterGSheet {
             sp.set_master_dialog_url_status(false, Master_url);
             e.printStackTrace();
         }
+
+       // return classlist;
+
+
+    }
+
+    public void parseItemsOffline(String jsonResposnce) {
+        ArrayList<Student_Item_Card> list = new ArrayList<Student_Item_Card>();
+
+
+        try {
+            JSONObject jobj = new JSONObject(jsonResposnce);
+            Log.d("jsonobj", jobj.toString());
+            JSONArray teacherarray = jobj.getJSONArray("teachers_name");
+            JSONArray classarray = jobj.getJSONArray("classes");
+            JSONArray subjectarray = jobj.getJSONArray("subjects");
+            JSONArray schoolcredentials = jobj.getJSONArray("school_details");
+            JSONArray sessionarray = jobj.getJSONArray("sessions");
+            school_idpw(schoolcredentials);
+            create_ArrayList(teacherarray, teacherlist);
+            create_ArrayList(classarray, classlist);
+            create_ArrayList(sessionarray, sessionlist);
+            create_ArrayList(subjectarray, subjectlist);
+
+            indicator.dismiss();
+
+            // ArrayList<String> classlist=info.classlist;
+
+//            ProgressDialog loading_studentsdata = ProgressDialog.show(ctx, "Loading", "Updating Class Data", false, true);
+//            loading_studentsdata.setCanceledOnTouchOutside(false);
+//            loading_studentsdata.setCancelable(false);
+//            GetAllClassesData getdata= new GetAllClassesData(ctx, classlist,sp, loading_studentsdata);
+//            getdata.getStudentsDataForOneClass(0);
+
+
+            // indicator.setVisibility(View.GONE);
+
+
+            // initSpinner();
+
+        } catch (JSONException e) {
+            Toast.makeText(ctx, "You entered a wrong url ! ", Toast.LENGTH_LONG).show();
+            SharedPrefSession sp;
+            sp=new SharedPrefSession(ctx);
+            sp.set_master_dialog_url_status(false, Master_url);
+            e.printStackTrace();
+        }
+
+        // return classlist;
 
 
     }

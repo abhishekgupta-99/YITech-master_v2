@@ -114,35 +114,58 @@ public class ClassSubjectDropDown extends AppCompatActivity {
         provinceList = new ArrayList<>();
 
        // if((subjectlist==null && subjectlist.isEmpty())||(teacherlist==null && teacherlist.isEmpty())||(classlist==null && classlist.isEmpty()))
-       if(subjectlist==null || subjectlist.isEmpty())
+       if(!sp.get_dropdowndata_offline().equals(""))
         {
+
 
            ProgressDialog loading = ProgressDialog.show(this, "Loading", "Fetching Credentials", false, true);
             loading.setCanceledOnTouchOutside(false);
             loading.setCancelable(false);
 
-
-
            FetchDetailsFromMasterGSheet info = new FetchDetailsFromMasterGSheet(this, loading, sp.get_prev_master_dialog_url_entered());
-            if(!checkInternetConnectivity())
-            {
-                info.parseItems(sp.get_dropdowndata_offline());
-            }
-            else
-            {
-                info.getItems();
-            }
 
+                info.parseItemsOffline(sp.get_dropdowndata_offline());
             subjectlist=info.subjectlist;
             classlist=info.classlist;
             teacherlist=info.teacherlist;
             sessionlist=info.sessionlist;
-        }
 
-        subjectspinner.setItem(subjectlist);
-        classspinner.setItem(classlist);
-//        Log.d("SESSION SIZE", sessionlist.size()+"");
-        sessionspinner.setItem(sessionlist);
+        }
+            else if((subjectlist==null || subjectlist.isEmpty()) && checkInternetConnectivity())
+            {
+                info.getItems();
+
+                subjectlist=info.subjectlist;
+                classlist=info.classlist;
+                teacherlist=info.teacherlist;
+                sessionlist=info.sessionlist;
+
+//               ProgressDialog loading_studentsdata = ProgressDialog.show(this, "Loading", "Updating App", false, true);
+//                loading_studentsdata.setCanceledOnTouchOutside(false);
+//                loading_studentsdata.setCancelable(false);
+//                GetAllClassesData getdata= new GetAllClassesData(this, classlist, sp, loading);
+//                getdata.getStudentsDataForOneClass(0);
+            }
+
+
+
+
+       try {
+
+
+
+
+           subjectspinner.setItem(subjectlist);
+           classspinner.setItem(classlist);
+           sessionspinner.setItem(sessionlist);
+
+       }
+       catch (Exception e)
+       {
+           Toast.makeText(this, "Failed to load data", Toast.LENGTH_SHORT).show();
+       }
+
+
        // teacherspinner.setItem(teacherlist);
 
 
@@ -240,15 +263,23 @@ public class ClassSubjectDropDown extends AppCompatActivity {
 
     public void markAttendance() {
 
+        if(selected_class.equals("null") || selected_subject.equals("null")||selected_session.equals("null"))
+        {
+            Toast.makeText(ClassSubjectDropDown.this, "Please Select From the Drop Down", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Intent i = new Intent(this, FetchStudentsAttendanceFromSlaveGsheet.class);
+            i.putExtra("Teacher", sp.getTeacherName());
+            i.putExtra("Class", selected_class);
+            i.putExtra("Subject",selected_subject);
+            i.putExtra("Session", selected_session);
+            i.putExtra("LoginAs", loginAs);
+            // i.putExtra("UserEnterUrl", url);
+            startActivity(i);
+
+        }
+
        // dialogboxlink();
-        Intent i = new Intent(this, FetchStudentsAttendanceFromSlaveGsheet.class);
-        i.putExtra("Teacher", sp.getTeacherName());
-        i.putExtra("Class", selected_class);
-        i.putExtra("Subject",selected_subject);
-        i.putExtra("Session", selected_session);
-        i.putExtra("LoginAs", loginAs);
-       // i.putExtra("UserEnterUrl", url);
-        startActivity(i);
 
       //  confirm_dropdown_selected();
 
@@ -325,8 +356,32 @@ public class ClassSubjectDropDown extends AppCompatActivity {
 
     }
 
-    public void back(View view) {
-        onBackPressed();
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        Toast.makeText(this, "Cannot navigate back! You are already signed In.", Toast.LENGTH_SHORT).show();
+    }
+
+    public void sync(View view) {
+
+        ProgressDialog loading = ProgressDialog.show(this, "Loading", "Fetching Credentials", false, true);
+        loading.setCanceledOnTouchOutside(false);
+        loading.setCancelable(false);
+
+        FetchDetailsFromMasterGSheet info = new FetchDetailsFromMasterGSheet(this, loading, sp.get_prev_master_dialog_url_entered());
+        info.getItems();
+
+        subjectlist=info.subjectlist;
+        classlist=info.classlist;
+        teacherlist=info.teacherlist;
+        sessionlist=info.sessionlist;
+
+        subjectspinner.setItem(subjectlist);
+        classspinner.setItem(classlist);
+        sessionspinner.setItem(sessionlist);
+
+
+        //onBackPressed();
     }
 
     public void exit(View view) {

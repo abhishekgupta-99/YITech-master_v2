@@ -1,9 +1,9 @@
 package com.freelance.school_attendance;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,9 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
@@ -41,9 +39,7 @@ import com.freelance.school_attendance.RoomOfflinePersistence.PostRoomDataToShee
 import com.freelance.school_attendance.RoomOfflinePersistence.db.AttendanceOfflineDatabase;
 import com.freelance.school_attendance.RoomOfflinePersistence.entity.AttendanceRecordOffline;
 import com.freelance.school_attendance.RoomOfflinePersistence.repository.AttendanceOfflineRepository;
-import com.freelance.school_attendance.model.UpdateAttendaceToSheetModel;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.shreyaspatil.MaterialDialog.BottomSheetMaterialDialog;
 import com.shreyaspatil.MaterialDialog.interfaces.DialogInterface;
 
@@ -82,6 +78,8 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
     private String userEnterUrl="";
     AttendanceRecordOffline attoff;
     List<AttendanceRecordOffline> recordsdata;
+    Context prevclass_ctx;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,22 +113,29 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         {
             if(!sp.get_last_att_synced_status())
             {
-                BottomSheetMaterialDialog mBottomSheetDialog = new BottomSheetMaterialDialog.Builder(this)
-                        .setTitle("Sync Last Attendance")
-                        .setMessage("Please sync the last attendance before you proceed.")
-                        .setCancelable(false)
-                        .setAnimation(R.raw.uploading)
-                        .setPositiveButton("Upload Last Attendance", new BottomSheetMaterialDialog.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int which) {
-                                // Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_SHORT).show();
-                                dialogInterface.dismiss();
-                                final ProgressDialog loading = ProgressDialog.show(FetchStudentsAttendanceFromSlaveGsheet.this, "Adding Offline Attendance to Google Sheet", "Please wait");
-                                getTasks(loading);
-                               // update_absent_students_GOOGLESHEET(sp.get_last_att_synced_status(class_gs),true);
-                               // Update_Google_Sheet();
-                            }
-                        })
+
+                final ProgressDialog loading = ProgressDialog.show(FetchStudentsAttendanceFromSlaveGsheet.this, "Adding Offline Attendance to Google Sheet", "Please wait");
+                getTasks(loading);
+
+//                BottomSheetMaterialDialog mBottomSheetDialog = new BottomSheetMaterialDialog.Builder(this)
+//                        .setTitle("Sync Last Attendance")
+//                        .setMessage("Please sync the last attendance before you proceed.")
+//                        .setCancelable(false)
+//                        .setAnimation(R.raw.uploading)
+//                        .setPositiveButton("Upload Last Attendance", new BottomSheetMaterialDialog.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int which) {
+//                                // Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_SHORT).show();
+//                                dialogInterface.dismiss();
+//                                final ProgressDialog loading = ProgressDialog.show(FetchStudentsAttendanceFromSlaveGsheet.this, "Adding Offline Attendance to Google Sheet", "Please wait");
+//                                getTasks(loading);
+//                               // update_absent_students_GOOGLESHEET(sp.get_last_att_synced_status(class_gs),true);
+//                               // Update_Google_Sheet();
+//                            }
+//                        })
+
+
+
 //                        .setNegativeButton("Cancel", new BottomSheetMaterialDialog.OnClickListener() {
 //                            @Override
 //                            public void onClick(DialogInterface dialogInterface, int which) {
@@ -138,14 +143,18 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 //                                dialogInterface.dismiss();
 //                            }
 //                        })
-                        .build();
+//                        .build();
+//
+//                // Show Dialog
+//                mBottomSheetDialog.show();
+            }
+            else
+            {
+                String offcachedata= sp.get_studentsdata_offline(class_gs);
+                parseItems(offcachedata);
 
-                // Show Dialog
-                mBottomSheetDialog.show();
             }
-            else {
-                getItems();
-            }
+
         }
         else
         {
@@ -153,6 +162,8 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
             if(offcachedata.equals("") || offcachedata == null)
             {
                 Toast.makeText(this, "No offline data to display. Please connect to internet !", Toast.LENGTH_SHORT).show();
+                loading.dismiss();
+                super.onBackPressed();
             }
             else
             {
@@ -260,15 +271,15 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 
     }
 
-    private void getItems() {
+    public void getItems() {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = Volley.newRequestQueue(prevclass_ctx);
         // String url = "http://192.168.0.100/apitest";
 
-        CacheRequest cacheRequest = new CacheRequest(0, getApplicationContext(), userEnterUrl, sp.get_prev_master_dialog_url_entered()+"?action=getStudents&class=" + class_gs, new Response.Listener<NetworkResponse>() {
+        CacheRequest cacheRequest = new CacheRequest(0, getApplicationContext(), sp.get_prev_master_dialog_url_entered()+"?action=getStudents&class=" +class_gs, new Response.Listener<NetworkResponse>() {
             @Override
             public void onResponse(NetworkResponse response) {
                 try {
@@ -277,7 +288,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
                   //  JSONObject jsonObject = new JSONObject(jsonString);
                     sp.set_studentsdata_offline(class_gs,jsonString);
 
-                    parseItems(jsonString);
+                   // parseItems(jsonString);
 
                    // Toast.makeText(FetchStudentsAttendanceFromSlaveGsheet.this, "onResponse:\n\n" + jsonString, Toast.LENGTH_SHORT).show();
                 } catch (UnsupportedEncodingException e) {
@@ -294,6 +305,9 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         // Add the request to the RequestQueue.
         queue.add(cacheRequest);
     }
+
+
+
 ////////////////////////////////////////////////////////////////////////////Working////////////
 
 /*
@@ -369,7 +383,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
     }
 */
 
-    private void parseItems(String jsonResposnce) {
+    public void parseItems(String jsonResposnce) {
         ArrayList<Student_Item_Card> list = new ArrayList<Student_Item_Card>();
         //  Log.d("jsonResponse",jsonResposnce);
 
@@ -418,12 +432,12 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
             }
         } catch (JSONException e) {
 
-            Toast.makeText(getApplicationContext(), "You entered a wrong url ! ", Toast.LENGTH_LONG).show();
-            SharedPrefSession sp;
-            sp=new SharedPrefSession(getApplicationContext());
-            sp.set_master_dialog_url_status(false, "");
-            e.printStackTrace();
-            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Couldn't fetch details or the class details in sheet is empty ! ", Toast.LENGTH_LONG).show();
+//            SharedPrefSession sp;
+//            sp=new SharedPrefSession(getApplicationContext());
+//            sp.set_master_dialog_url_status(false, "");
+//            e.printStackTrace();
+//            e.printStackTrace();
         }
 
         mAdapter = new RecyclerViewAdapter(list);
@@ -575,9 +589,11 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         ArrayList<Student_Item_Card> present_students = mAdapter.getPresentStudents();
         ArrayList<Student_Item_Card> with_permission_students = mAdapter.getWithPermission();
 
-        if(!markallP && (absent_students.size() == 0) && (present_students.size() == 0) && (with_permission_students.size() == 0))
+        int sum_of_arraysize= absent_students.size()+present_students.size()+with_permission_students.size();
+
+        if(!markallP && (absent_students.size() == 0) && (present_students.size() == 0) && (with_permission_students.size() == 0) || !markallP && sum_of_arraysize!=mAdapter.mStudentItemCardList.size())
         {
-            Toast.makeText(this, "No attendance selected. Cannot update to sheet !", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Attendance incomplete. Cannot update to sheet !", Toast.LENGTH_SHORT).show();
 
         }
         else {
@@ -665,6 +681,7 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
         absent_roll_nos="";
         wp_roll_nos="";
         markallP=true;
+
         for(int i=1;i<=mAdapter.getItemCount();i++)
         {
             present_roll_nos=present_roll_nos+i+",";
@@ -673,4 +690,12 @@ public class FetchStudentsAttendanceFromSlaveGsheet extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+        Intent intent = new Intent(this, ClassSubjectDropDown.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        super.onBackPressed();
+    }
 }

@@ -16,6 +16,8 @@ import com.example.flatdialoglibrary.dialog.FlatDialog;
 import com.freelance.school_attendance.HelperClass.SharedPrefSession;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
+
 public class SchoolLogin extends AppCompatActivity {
     FetchDetailsFromMasterGSheet info;
     TextInputEditText SIN, pw;
@@ -51,7 +53,7 @@ public class SchoolLogin extends AppCompatActivity {
 
     public void first_dialogboxlink() {
 
-        SharedPrefSession sp;
+        final SharedPrefSession sp;
         sp = new SharedPrefSession(getApplicationContext());
 
         if (sp.get_master_dialog_url_status()) {
@@ -83,6 +85,14 @@ public class SchoolLogin extends AppCompatActivity {
 
                                 info = new FetchDetailsFromMasterGSheet(SchoolLogin.this, loading,master_sheet_url);
                                 info.getItems();
+
+//                                ArrayList<String> classlist=info.classlist;
+//
+//                                ProgressDialog loading_studentsdata = ProgressDialog.show(getApplicationContext(), "Loading", "Updating App", false, true);
+//                                loading_studentsdata.setCanceledOnTouchOutside(false);
+//                                loading_studentsdata.setCancelable(false);
+//                                GetAllClassesData getdata= new GetAllClassesData(getApplicationContext(), classlist,sp, loading);
+//                                getdata.getStudentsDataForOneClass(0);
 
 
                                 //Toast.makeText(ClassSubjectDropDown.this, "Success", Toast.LENGTH_SHORT).show();
